@@ -227,7 +227,8 @@ const CLASSIC = {
 
 const ORDER = ["start","m1","m2","m3","m4","m5","end","done"];
 const STEPNAMES = {m1:"미션 1",m2:"미션 2",m3:"미션 3",m4:"미션 4",m5:"미션 5",end:"마무리"};
-const KEY = "cm12_w12_v1";
+const PREVIEW = /[?&]preview=1/.test(location.search);   // 미리보기: 시트로 보내지 않고 기록도 따로 저장
+const KEY = PREVIEW ? "cm12_w12_preview" : "cm12_w12_v1";
 let S = load();
 
 function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)||"null"); if(s && s.v===1) return s; }catch(e){} return {v:1, step:"start", t:{}, m:{}}; }
@@ -292,7 +293,7 @@ function fields(stage){
   return f;
 }
 function send(stage){
-  if(!CFG.formAction) return;
+  if(!CFG.formAction || PREVIEW) return;
   const f=fields(stage), body=new URLSearchParams();
   for(const [k,v] of Object.entries(f)) if(k) body.append(k, v);
   try{
@@ -325,13 +326,13 @@ function missionHead(n, title, layer, minutes){
 }
 function render(){
   headerUpdate(); main.innerHTML="";
+  if(PREVIEW) main.append(h("div",{class:"msg warn",style:"margin-top:14px"},"미리보기 화면. 기록이 교수 시트로 전송되지 않음. 첫 화면에서 학번을 바꾸면 다른 사례와 가상 환자가 나옴"));
   ({start:vStart, m1:vM1, m2:vM2, m3:vM3, m4:vM4, m5:vM5, end:vEnd, done:vDone}[S.step]||vStart)();
 }
 
 /* ---------- 시작 ---------- */
 function vStart(){
-  const preview=/[?&]preview=1/.test(location.search);
-  if(!S.t.start && !preview && Date.now() < Date.parse(CFG.openAt)){
+  if(!S.t.start && !PREVIEW && Date.now() < Date.parse(CFG.openAt)){
     main.append(h("h1",null,"기후변화와 의학 12주차 온라인 미션"));
     main.append(card("task","아직 열리지 않음", ul(["열림: 2026년 11월 19일(목) 0시","마감: "+CFG.deadline,"혼자 수행, 30분 이내. PC 또는 휴대폰"]), null));
     return;
@@ -646,7 +647,7 @@ function fallbackCopy(text,done){ const ta=h("textarea",{style:"position:fixed;l
 function vDone(){
   const m=S.m.end||{};
   main.append(h("h1",null,"12주차 미션 완료"));
-  main.append(card("concept","완료 코드",[h("div",{class:"code"},completionCode()), h("p",{class:"hint",style:"margin:4px 0 0"},`총 ${S.t.end&&S.t.end.e?mins(S.t.end.e-S.t.start.s):"-"}분. 기록은 교수 설문 시트로 자동 전송됨`)],null));
+  main.append(card("concept","완료 코드",[h("div",{class:"code"},completionCode()), h("p",{class:"hint",style:"margin:4px 0 0"},`총 ${S.t.end&&S.t.end.e?mins(S.t.end.e-S.t.start.s):"-"}분. `+(PREVIEW?"미리보기라 전송하지 않음":"기록은 교수 설문 시트로 자동 전송됨"))],null));
   const t1=`${S.nick}\n① ${m.l1||""}\n② ${m.l2||""}\n③ ${m.l3||""}`;
   const t2=`${S.nick}: ${m.q||""}`;
   main.append(card("task","패들렛에 붙여 넣기 (제목은 별명만)",[
@@ -654,7 +655,7 @@ function vDone(){
     h("div",{class:"label"},"'특강 질문' 열"), h("div",{class:"copybox"},t2), copyBtn(t2),
     CFG.padlet? h("a",{class:"linkbtn",href:CFG.padlet,target:"_blank",rel:"noopener"},"패들렛 열기"):h("p",{class:"hint"},"패들렛 주소는 e-campus 공지 참고")
   ],null));
-  const pf=prefillURL();
+  const pf=PREVIEW?"":prefillURL();
   main.append(card("","전송 확인",[h("p",{class:"small",style:"margin:0"},"인터넷이 끊겼거나 학교 망에서 전송이 막혔을 수 있음. 그런 경우 아래 버튼으로 같은 내용을 설문에 직접 제출 (이미 채워져 있음, 제출만 누름)"),
     pf? h("a",{class:"linkbtn alt",href:pf,target:"_blank",rel:"noopener"},"설문으로 직접 제출"):null],null));
 }
