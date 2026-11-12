@@ -125,7 +125,8 @@ const CFG = {
   entries: { name:"entry.1418608464", sid:"entry.339158000", nick:"entry.1730754689", stage:"entry.1794072010", minutes:"entry.1478522419",
     summary:"entry.1689263149", lines:"entry.1024663086", question:"entry.1451361886", person:"entry.822439197", code:"entry.449037233", detail:"entry.1770261803" },
   padlet: "https://padlet.com/jbh8284/12-11-19-s025dmh1v0w4ajgyzxwg",
-  deadline: "11/19(목) 23:59"
+  deadline: "11/19(목) 23:59",
+  openAt: "2026-11-19T00:00:00+09:00"   // 이 시각 전에는 열리지 않음. 주소 끝에 ?preview=1 을 붙이면 미리보기
 };
 
 /* 미션 1: 자메이카 수치 */
@@ -329,6 +330,12 @@ function render(){
 
 /* ---------- 시작 ---------- */
 function vStart(){
+  const preview=/[?&]preview=1/.test(location.search);
+  if(!S.t.start && !preview && Date.now() < Date.parse(CFG.openAt)){
+    main.append(h("h1",null,"기후변화와 의학 12주차 온라인 미션"));
+    main.append(card("task","아직 열리지 않음", ul(["열림: 2026년 11월 19일(목) 0시","마감: "+CFG.deadline,"혼자 수행, 30분 이내. PC 또는 휴대폰"]), null));
+    return;
+  }
   main.append(h("h1",null,"기후변화의 간접적 영향 (사회적 불평등과 건강 형평성)"));
   main.append(h("p",{class:"sub"},"12주차 온라인 미션. 혼자 수행, 30분 이내"));
   main.append(card("concept","오늘의 질문", h("p",{style:"margin:0"},"같은 폭염, 같은 홍수에서 사람마다, 나라마다 피해가 다르게 나타나는 이유"),null));
