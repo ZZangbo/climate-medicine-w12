@@ -225,6 +225,22 @@ const CLASSIC = {
   ko:"진찰 전에 반드시 예전에 귀했다가 천해졌는지 물음. 사기에 상하지 않아도 병이 안에서 생기니 탈영(脫營). 부유했다가 가난해지면 실정(失精)",
   src:"『황제내경 소문』 소오과론(疏五過論) 첫째 과실; 삼인제의: WHO 전통의학 표준용어 2022"
 };
+/* 시작 아이스브레이크: 이번 주 기후변화 소식 (교수님 지정 기사 2026.11.13, 수치는 1차 출처로 대조) */
+const NEWS = {
+  date: "2026.11.13",
+  head: "세계 정상 모인 COP31, 획기적인 새 약속 어려워",
+  outlet: "뉴스펭귄 (그리스트 기사 번역), 2026.11.13",
+  url: "https://v.daum.net/v/20261113101534415",
+  facts: [
+    "<b>COP31</b>: 튀르키예 안탈리아, 11월 9~20일. 의장국 튀르키예, 협상 의장 호주. 새 공약보다 기존 약속을 실행하는 '이행 COP'. 쟁점은 기후재원, 적응 목표, 정의로운 전환",
+    "<b>유엔환경계획 배출격차 보고서 2026</b> (10.21): 1.5°C를 넘지 않는 길은 사라짐. 지금 정책대로면 이번 세기 2.8°C, 각국 감축목표를 다 지켜도 2.6°C",
+    "<b>네팔 대홍수</b>(8월): 손실피해기금 첫 지원 2,160만 달러. 재건 필요액(47억 8,000만 달러)의 0.5%에도 못 미침 → 미션 2"
+  ],
+  guess: { ask:"2026년 여름(6~8월) 유럽 도시 854곳의 폭염 관련 사망 추정", opts:["약 5천 명","약 1만 명","5만 명 이상","50만 명 이상"], ans:"5만 명 이상",
+    after:"5만 명 이상으로 2000년 이후 가장 많음(2022년 약 2만 9천 명의 거의 두 배). 약 3분의 2는 인간이 만든 기후변화 몫. 노인이 가장 많았지만 65세 미만도 약 6천 명 → 오늘 주제: 같은 폭염, 다른 피해",
+    src:"LSHTM, Imperial College London 보도자료 2026.10.23 (Nature Health 2026)" },
+  src: "UNFCCC COP31 안내(2026.7.17); UNEP Emissions Gap Report 2026 보도자료(2026.10.21); 손실피해기금(FRLD) 보도자료 2026.10.22; 네팔 외교부 2026.9.11"
+};
 /* 참고 영상 (선택). 미션별로 {title, channel, len, url}. 비어 있으면 표시 안 함 */
 const VIDEOS = {
   m1:[{title:"0.01%의 역설 '억울한 네팔', 숫자로 본 대홍수 [뉴스in뉴스]", channel:"KBS News, 2026.9.2", len:"6분 48초", url:"https://www.youtube.com/watch?v=DxOe1S5vIqY"},
@@ -238,8 +254,8 @@ const VIDEOS = {
 };
 /* ===================== 설정 끝 ===================== */
 
-const ORDER = ["start","m1","m2","m3","m4","m5","end","done"];
-const STEPNAMES = {m1:"미션 1",m2:"미션 2",m3:"미션 3",m4:"미션 4",m5:"미션 5",end:"마무리"};
+const ORDER = ["start","news","m1","m2","m3","m4","m5","end","done"];
+const STEPNAMES = {news:"이번 주 소식",m1:"미션 1",m2:"미션 2",m3:"미션 3",m4:"미션 4",m5:"미션 5",end:"마무리"};
 const PREVIEW = /[?&]preview=1/.test(location.search);   // 미리보기: 시트로 보내지 않고 기록도 따로 저장
 const KEY = PREVIEW ? "cm12_w12_preview" : "cm12_w12_v1";
 let S = load();
@@ -282,6 +298,7 @@ function summary(){
   const p=[]; const t=S.t; const m=S.m;
   const d=(k)=> t[k]&&t[k].e ? mins(t[k].e-t[k].s)+"분" : "미완료";
   const rv=(x)=> x&&x.revealed ? " 정답보기" : "";
+  if(m.news&&m.news.pick) p.push(`소식 예측(${m.news.pick})`);
   if(m.m1&&m.m1.pred) p.push(`M1 ${d("m1")} 시도${t.m1?t.m1.tries:0}${rv(m.m1)} 예측(배출 ${m.m1.pred.emis}%, 피해 ${m.m1.pred.dmg}%)`);
   if(m.m2) p.push(`M2 ${d("m2")} 시도${t.m2?t.m2.tries:0}${rv(m.m2)} 비율(${m.m2.calc||"-"} ${m.m2.val??"-"})`);
   if(m.m3) p.push(`M3 ${d("m3")} 시도${t.m3?t.m3.tries:0}${rv(m.m3)}`);
@@ -343,7 +360,7 @@ function missionHead(n, title, layer, minutes){
 function render(){
   headerUpdate(); main.innerHTML="";
   if(PREVIEW) main.append(h("div",{class:"msg warn",style:"margin-top:14px"},"미리보기 화면. 기록이 교수 시트로 전송되지 않음. 첫 화면에서 학번을 바꾸면 다른 사례와 가상 환자가 나옴"));
-  ({start:vStart, m1:vM1, m2:vM2, m3:vM3, m4:vM4, m5:vM5, end:vEnd, done:vDone}[S.step]||vStart)();
+  ({start:vStart, news:vNews, m1:vM1, m2:vM2, m3:vM3, m4:vM4, m5:vM5, end:vEnd, done:vDone}[S.step]||vStart)();
   const vids=VIDEOS[S.step]||[];
   if(vids.length) main.append(card("","참고 영상 (선택, 보지 않아도 진행 가능)", ul(vids.map(v=>`<a href="${v.url}" target="_blank" rel="noopener">${v.title}</a> (${v.channel}, ${v.len})`)), null));
 }
@@ -359,7 +376,7 @@ function vStart(){
   main.append(h("p",{class:"sub"},"12주차 온라인 미션. 혼자 수행, 30분 이내"));
   main.append(card("concept","오늘의 질문", h("p",{style:"margin:0"},"같은 폭염, 같은 홍수에서 사람마다, 나라마다 피해가 다르게 나타나는 이유"),null));
   main.append(card("","진행 방식", ul([
-    "미션 5개와 마무리. 앞 단계를 마쳐야 다음 단계가 열림",
+    "이번 주 기후변화 소식(1분), 미션 5개, 마무리. 앞 단계를 마쳐야 다음 단계가 열림",
     "학번에 따라 사례, 카드, 가상 환자가 달라짐",
     "미션별 소요 시간, 시도 횟수, 입력 칸 붙여넣기 여부가 기록됨",
     "AI 사용: 모르는 용어나 개념을 찾아보는 데까지만. 화면 조작, 답 고르기, 세 줄과 특강 질문은 본인이 직접 (AIAS 2단계)",
@@ -387,12 +404,31 @@ function vStart(){
       if(s.length<8) return warn.append(msg("warn","학번 숫자 8자리 이상 입력"));
       if(!/^[가-힣A-Za-z]+\d{2}$/.test(k)) return warn.append(msg("warn","별명 형식: 동물 이름 + 숫자 두 자리 (예: 수달27)"));
       if(n && k.includes(n)) return warn.append(msg("warn","별명에 실명 금지"));
-      S.name=n; S.sid=s; S.nick=k; T("start"); S.t.start.e=Date.now(); save(); send("start"); go("m1");
-    }},"출석하고 미션 1 시작")
+      S.name=n; S.sid=s; S.nick=k; T("start"); S.t.start.e=Date.now(); save(); send("start"); go("news");
+    }},"출석하고 시작")
   ],null));
 }
 
 /* ---------- 미션 1 ---------- */
+/* ---------- 이번 주 기후변화 소식 (아이스브레이크) ---------- */
+function vNews(){
+  begin("news"); S.resume="news"; const st=S.m.news || (S.m.news={}); save();
+  main.append(h("h1",null,"이번 주 기후변화 소식 ("+NEWS.date+")"));
+  main.append(h("p",{class:"sub"}, h("span",{class:"tag"},"시작"), h("span",{class:"tag"},"약 1분")));
+  main.append(card("concept",null,[
+    h("p",{style:"margin:0 0 6px"}, h("a",{href:NEWS.url,target:"_blank",rel:"noopener"},"「"+NEWS.head+"」"), " ", h("span",{class:"hint"},NEWS.outlet)),
+    ul(NEWS.facts)], NEWS.src));
+  const G=NEWS.guess, fb=h("div"), box=h("div");
+  const draw=()=>{ box.innerHTML=""; G.opts.forEach(o=>box.append(h("button",{class:"opt"+(st.pick===o?" sel":""), disabled:!!st.pick, onclick:()=>{ st.pick=o; save(); render(); }},o))); };
+  draw();
+  main.append(card("task","예측: "+G.ask,[box, fb], st.pick? G.src : null));
+  if(st.pick){
+    fb.append(msg(st.pick===G.ans?"ok":"warn", (st.pick===G.ans?"맞음. ":"실제: "+G.ans+". ")+G.after));
+    const t=T("news"); if(!t.e){ t.e=Date.now(); save(); }
+    const c=card("",null,[next("m1")],null); main.append(c); scrollToEl(c);
+  }
+}
+
 function vM1(){
   begin("m1"); S.resume="m1"; const st=S.m.m1 || (S.m.m1={}); save();
   main.append(...missionHead("미션 1","배출 책임과 피해 (자메이카)","국가 간","약 5분"));
