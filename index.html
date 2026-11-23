@@ -366,7 +366,7 @@ function render(){
     nav.append(h("button",{onclick:()=>{ try{localStorage.removeItem(KEY);}catch(e){} location.reload(); }},"다른 사례로 처음부터"));
     main.append(h("div",{class:"card",style:"margin-top:14px;border-left:4px solid var(--accent)"},
       h("b",null,"예시 화면: 기후변화와 의학 12주차 온라인 미션 (2026.11.19 학생용)"),
-      h("p",{class:"small",style:"margin:4px 0 0"},"학생은 출석 후 소식, 미션 1~5, 마무리를 순서대로 풀고 앞 단계를 마쳐야 다음이 열림. 예시 화면에서는 아래 버튼으로 단계를 바로 열어 볼 수 있음. 학번에 따라 사례와 가상 환자가 달라짐. 입력한 내용은 저장되거나 전송되지 않음"),
+      h("p",{class:"small",style:"margin:4px 0 0"},"학생은 출석 후 소식, 미션 1~5, 마무리를 순서대로 풀고 앞 단계를 마쳐야 다음이 열림. 예시 화면에서는 아래 버튼으로 단계를 바로 열어 볼 수 있음. 학번에 따라 사례와 가상 환자가 달라짐. 입력한 내용은 어디로도 전송되지 않음"),
       nav));
   } else if(PREVIEW) main.append(h("div",{class:"msg warn",style:"margin-top:14px"},"미리보기 화면. 기록이 교수 시트로 전송되지 않음. 첫 화면에서 학번을 바꾸면 다른 사례와 가상 환자가 나옴"));
   ({start:vStart, news:vNews, m1:vM1, m2:vM2, m3:vM3, m4:vM4, m5:vM5, end:vEnd, done:vDone}[S.step]||vStart)();
